@@ -4,7 +4,7 @@ from pathlib import Path
 
 import cleo.io.io
 import poetry.core.factory
-from behave import *
+from behave import when, then  # pylint: disable=no-name-in-module
 import nose.tools as nt
 
 from poetry_monorepo_dependency_plugin.path_dependency_remover import (
