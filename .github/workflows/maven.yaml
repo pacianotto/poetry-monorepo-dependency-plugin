@@ -20,20 +20,34 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v3
-            - name: Setup Pyenv
-              uses: gabrielfalcao/pyenv-action@v16
+            - uses: actions/checkout@v4
+
+            - name: Install Python # use direct install rather than pyenv for CI for large speed improvement
+              uses: actions/setup-python@v5
+              with:
+                python-version: '3.11.4'
+
+            - name: Load cached Poetry installation
+              id: cached-poetry
+              uses: actions/cache@v4
+              with:
+                path: ~/.local
+                key: poetry-0  # increment to reset cache
+
             - name: Install Poetry
+              if: steps.cached-poetry.outputs.cache-hit != 'true'
               uses: snok/install-poetry@v1
+
             - name: Set up JDK 11
-              uses: actions/setup-java@v3
+              uses: actions/setup-java@v4
               with:
                   java-version: '11'
                   distribution: 'temurin'
                   cache: maven
+
             - name: Build poetry-monorepo-dependency-plugin
-              run: mvn -B install --file pom.xml
+              run: mvn -B install --file pom.xml -Dhabushu.usePyenv=false
 
             # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
             - name: Update dependency graph
-              uses: advanced-security/maven-dependency-submission-action@v3
+              uses: advanced-security/maven-dependency-submission-action@v4
